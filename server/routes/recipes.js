@@ -1,23 +1,20 @@
-const express = require("express");
-const Recipes = require("../models/recipes");
+import express from "express";
+import Recipe from "../models/recipes.js";
 const router = express.Router();
 
 // For all
 router.get("/", async (req, res) => {
   try {
-    const recipes = await Recipes.find();
-    res.json(recipes);
+    const allRecipes = await Recipe.find({ userId: req.user.id });
+    res.send(allRecipes);
   } catch (err) {
     res.status(500).json({ message: err.message });
   }
 });
 
-//For one
-router.get("/:id", (req, res) => {});
-
 //Creating one
 router.post("/", async (req, res) => {
-  const recipe = new Recipes({
+  const recipe = new Recipe({
     name: req.body.name,
     ingredients: req.body.ingredients,
     recipesSteps: req.body.recipesSteps,
@@ -26,6 +23,7 @@ router.post("/", async (req, res) => {
     servings: req.body.servings,
     tags: req.body.tags,
     nationality: req.body.nationality,
+    userId: req.user.id,
   });
   try {
     const newRecipe = await recipe.save();
@@ -40,6 +38,9 @@ router.post("/", async (req, res) => {
 router.patch("/", (req, res) => {});
 
 //Delete one
-router.delete("/:id", (req, res) => {});
+router.delete("/recipes", async (req, res) => {
+  const recipeName = req.body.name;
+  const findRecipe = await Recipe.find({ name: req.body.name });
+});
 
-module.exports = router;
+export default router;
